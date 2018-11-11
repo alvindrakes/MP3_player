@@ -1,0 +1,26 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:background="#202020"
+    tools:context=".MainActivity" >
+
+    <ListView
+        android:id="@+id/songList"
+        android:layout_width="fill_parent"
+        android:layout_height="285dp"></ListView>
+
+    <Button
+        android:id="@+id/action_shuffle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/shuffle_song" />
+
+    <Button
+        android:id="@+id/action_end"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/end_song" />
+
+</LinearLayout>

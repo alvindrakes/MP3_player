@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Mp3_player</string>
+    <string name="shuffle_song">Shuffle song</string>
+    <string name="end_song">End song</string>
+</resources>
