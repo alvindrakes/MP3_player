@@ -39,9 +39,7 @@ public class MP3Player {
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
         try{
-            // chnane format to file input stream
-            FileInputStream FIS = new FileInputStream(filePath);
-            mediaPlayer.setDataSource(FIS.getFD());
+            mediaPlayer.setDataSource(filePath);
             mediaPlayer.prepare();
         } catch (IOException e) {
             Log.e("MP3Player", e.toString());
@@ -85,14 +83,6 @@ public class MP3Player {
         }
     }
 
-    // own added stuff
-    public void reset() {
-            mediaPlayer.reset();
-    }
-    public void prepareAsync() {
-        mediaPlayer.prepareAsync();
-    }
-
     public void pause() {
         if(this.state == MP3PlayerState.PLAYING) {
             mediaPlayer.pause();
@@ -109,5 +99,10 @@ public class MP3Player {
             mediaPlayer.release();
             mediaPlayer = null;
         }
+    }
+
+    // added function to go to specific seconds of the song
+    public void goTo(int seconds) {
+        mediaPlayer.seekTo(seconds);
     }
 }
