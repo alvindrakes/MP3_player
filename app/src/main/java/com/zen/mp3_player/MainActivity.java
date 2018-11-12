@@ -3,43 +3,31 @@ package com.zen.mp3_player;
 import android.Manifest;
 import android.app.Service;
 import android.content.ComponentName;
-import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
-import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.zen.mp3_player.MP3BoundService.MusicBinder;
 import java.io.File;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.IllegalFormatCodePointException;
-import java.util.List;
 
+/* This is the main activity for the app, all services are included in a file called
+    MP3BoundService, which uses MP3Player functions to operate.
+
+    All codes for extracting and displaying the songs are here in this file
+ */
 public class MainActivity extends AppCompatActivity {
 
     private static final int READ_PERMISSION_REQUEST = 1;
@@ -51,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
 
     // Create an object for MP3BoundService
     MusicBinder binder;
-    MP3BoundService service;
     private ServiceConnection musicServiceConnect = null;
     private Intent playIntent;
     boolean isBound = false;
@@ -59,7 +46,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView musicInfo;
     private SeekBar musicProcess;
     private int songIndex = 0;
-    private final String TAG = "music main activity";
+    public String songName;
+    private final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,8 +58,7 @@ public class MainActivity extends AppCompatActivity {
         musicProcess = (SeekBar) findViewById(R.id.musicProcess);
         playIntent = new Intent(this, MP3BoundService.class);
 
-        // make sure the permission request is granted
-        // Requests permission for devices with versions Marshmallow (M)/API 23 or above.
+        // make sure the permission request is granted when the app is launched
         if (ContextCompat.checkSelfPermission(MainActivity.this,
                 Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
@@ -99,7 +86,6 @@ public class MainActivity extends AppCompatActivity {
     public void getMusic() {
         File musicDir = new File(Environment.getExternalStorageDirectory().getPath() + "/Music/");
         songList = musicDir.listFiles();
-
         songView.setAdapter(new ArrayAdapter<File>(this, android.R.layout.simple_list_item_1, songList));
 
         songView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -133,10 +119,11 @@ public class MainActivity extends AppCompatActivity {
         };
 
         bindService(playIntent, musicServiceConnect, Service.BIND_AUTO_CREATE);
-        //musicProcess.postDelayed(updateSeconds, 1000);
+        musicProcess.postDelayed(updateInfoPerSec, 500);
     }
 
 
+    // if permission is not granted, no songs will be shown
     public void onRequestPermissionsResult(int requestcode, String[] permission, int[] grantResults) {
         switch (requestcode) {
             case READ_PERMISSION_REQUEST: {
@@ -149,8 +136,8 @@ public class MainActivity extends AppCompatActivity {
                         showMusic();
                     }
                 } else {
+                    // song list will be not be shown
                     Toast.makeText(this, "No Permission granted", Toast.LENGTH_SHORT).show();
-                    finish();
                 }
             }
         }
@@ -171,7 +158,6 @@ public class MainActivity extends AppCompatActivity {
     public void play_song(View v) {
         if(binder != null) {
             binder.play();
-            setMusicInfo(selectedFromList.getAbsolutePath(), translateTimeFormat(binder.getProgress()), translateTimeFormat(binder.getDuration()));
         }
     }
 
@@ -215,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
             if(musicProcess != null) {
                 if(binder.getDuration() != 0) {
                     musicProcess.setProgress(binder.getProgress() * musicProcess.getMax() / binder.getDuration());
-                    setMusicInfo(selectedFromList.getAbsolutePath(), translateTimeFormat(binder.getProgress()), translateTimeFormat(binder.getDuration()));
+                    setMusicInfo(translateTimeFormat(binder.getProgress()), translateTimeFormat(binder.getDuration()));
                 }
 
                 if(binder.getState().equals(MP3Player.MP3PlayerState.PLAYING))
@@ -224,12 +210,12 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private void setMusicInfo(String songName, String songProgress, String songDuration) {
+    private void setMusicInfo(String songProgress, String songDuration) {
 
         songName = binder.setPlayName(binder.getFilePath());
-        musicInfo.setText("Song Playing now: " + songName + "\n"
+        musicInfo.setText("Playing now: " + songName + "\n"
                         + "Time: " + songProgress + " / " + songDuration);
-    }
+        }
 
     private String translateTimeFormat(long msec) {
 
@@ -303,6 +289,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         Log.i(TAG, "onStop");
+    }
+
+    public String getSongNameNotif() {
+        return songName;
     }
 
 }

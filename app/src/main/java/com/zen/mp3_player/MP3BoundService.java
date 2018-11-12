@@ -3,34 +3,26 @@ package com.zen.mp3_player;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ContentUris;
 import android.content.Intent;
-import android.media.MediaPlayer;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
-import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
-
 import java.io.File;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
+
 
 public class MP3BoundService extends Service {
 
     // create a MP3 player object
-    MP3Player player;
+    MP3Player player = new MP3Player();
     private MusicBinder binder  = new MusicBinder();
 
     Intent notifyIntent;
     NotificationManager notifyManager;
-    NotificationCompat.Builder notifyBuilder;
+    NotificationCompat.Builder mBuilder;
 
-    private final String TAG = "music service";
     String songName;
+    private final String TAG = "MP3BoundService";
 
     public class MusicBinder extends Binder {
 
@@ -41,17 +33,17 @@ public class MP3BoundService extends Service {
 
         public void play() {
             player.play();
-            Log.i(TAG, "play music");
+            Log.i(TAG, "play song");
         }
 
         public void pause() {
             player.pause();
-            Log.i(TAG, "pause music");
+            Log.i(TAG, "pause song");
         }
 
         public void stop() {
             player.stop();
-            Log.i(TAG, "stop music");
+            Log.i(TAG, "stop song");
         }
 
         public int getDuration() {
@@ -98,34 +90,27 @@ public class MP3BoundService extends Service {
         }
     }
 
-
-    @Override
-    public IBinder onBind(Intent intent) {
-
-        Log.i(TAG, "onBind");
-        return binder;
-    }
-
     @Override
     public void onCreate() {
-
         super.onCreate();
-        player = new MP3Player();
 
+        // create notification when song is playing
         notifyIntent = new Intent(this, MainActivity.class);
         notifyManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 
-        notifyBuilder = new NotificationCompat.Builder(this)
-                .setContentIntent(PendingIntent.getActivity(this, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT))
-                .setSmallIcon(R.mipmap.ic_launcher_round)
-                .setContentTitle("Song Playing now:")
-                .setContentText("running");
+        mBuilder = new NotificationCompat.Builder(this)
+                .setContentIntent(PendingIntent.getActivity(this, 0, notifyIntent, 0))
+                .setSmallIcon(R.drawable.ic_library_music_black_24dp)
+                .setContentTitle("MP3 Player")
+                .setContentText("Song is playing!");
 
-        notifyManager.notify(1, notifyBuilder.build());
+        notifyManager.notify(1, mBuilder.build());
         Log.i(TAG, "service onCreate");
         Log.i(TAG, "notification created");
     }
 
+
+    // cancel notification when the music player service is disconnected
     @Override
     public boolean onUnbind(Intent intent) {
         notifyManager.cancel(1);
@@ -133,6 +118,12 @@ public class MP3BoundService extends Service {
         Log.i(TAG, "onUnbind");
         Log.i(TAG, "notification cancelled");
         return true;
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        Log.i(TAG, "onBind");
+        return binder;
     }
 
     @Override
@@ -147,46 +138,4 @@ public class MP3BoundService extends Service {
         super.onRebind(intent);
     }
 }
-
-
-//    @Override
-//    public void onCreate() {
-//    }
-//
-//
-//    @Override
-//    public IBinder onBind(Intent intent) {
-//        return musicBinder;
-//    }
-//
-////    public void setSong(int songIndex) {
-////        songPosition = songIndex;
-////
-////        //Toast.makeText(this, "SongPosition: " + songPosition, Toast.LENGTH_SHORT).show();
-////    }
-//
-//
-//    public void playSong(String filepath) {
-//
-//        Toast.makeText(this, filepath, Toast.LENGTH_SHORT).show();
-//
-//       player.load(filepath);
-//       player.play();
-//    }
-//
-//
-//
-//
-//    public class MyMusicBinder extends Binder {
-//        MP3BoundService getService() {
-//            return MP3BoundService.this;
-//        }
-//    }
-//
-//    @Override
-//    public boolean onUnbind(Intent intent) {
-//        player.stop();
-//        // player.release()
-//        return false;
-//    }
 
