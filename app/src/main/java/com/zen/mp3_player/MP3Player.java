@@ -11,6 +11,7 @@ import java.io.IOException;
 
 /**
  * Created by pszmdf on 06/11/16.
+ * Responsible for Mp3 music playing features
  */
 public class MP3Player {
 

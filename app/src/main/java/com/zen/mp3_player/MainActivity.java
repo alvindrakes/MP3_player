@@ -23,11 +23,12 @@ import android.widget.Toast;
 import com.zen.mp3_player.MP3BoundService.MusicBinder;
 import java.io.File;
 
-/* This is the main activity for the app, all services are included in a file called
+/*
+    This is the main activity for the app, all services are included in a file called
     MP3BoundService, which uses MP3Player functions to operate.
 
     All codes for extracting and displaying the songs are here in this file
- */
+*/
 public class MainActivity extends AppCompatActivity {
 
     private static final int READ_PERMISSION_REQUEST = 1;
@@ -143,8 +144,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-
     // get the current index of the song in the Array
     private void getSongPosition() {
         for(int i = 0; i < songList.length; i++) {
@@ -159,6 +158,8 @@ public class MainActivity extends AppCompatActivity {
         if(binder != null) {
             binder.play();
         }
+        // update info when song is played from pause state
+        musicProcess.postDelayed(updateInfoPerSec, 500);
     }
 
     public void pause_song(View v) {
@@ -200,6 +201,7 @@ public class MainActivity extends AppCompatActivity {
         public void run() {
             if(musicProcess != null) {
                 if(binder.getDuration() != 0) {
+                    // get the timing info of the song
                     musicProcess.setProgress(binder.getProgress() * musicProcess.getMax() / binder.getDuration());
                     setMusicInfo(translateTimeFormat(binder.getProgress()), translateTimeFormat(binder.getDuration()));
                 }
@@ -290,9 +292,4 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
         Log.i(TAG, "onStop");
     }
-
-    public String getSongNameNotif() {
-        return songName;
-    }
-
 }

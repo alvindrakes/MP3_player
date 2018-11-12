@@ -10,7 +10,9 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import java.io.File;
 
-
+/*
+    Responsible for the service and notification builder code which is also connected to MP3Player
+ */
 public class MP3BoundService extends Service {
 
     // create a MP3 player object
@@ -95,11 +97,12 @@ public class MP3BoundService extends Service {
         super.onCreate();
 
         // create notification when song is playing
+        // when clicking on the notification, music player will resume activity
         notifyIntent = new Intent(this, MainActivity.class);
         notifyManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 
         mBuilder = new NotificationCompat.Builder(this)
-                .setContentIntent(PendingIntent.getActivity(this, 0, notifyIntent, 0))
+                .setContentIntent(PendingIntent.getActivity(this, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT))
                 .setSmallIcon(R.drawable.ic_library_music_black_24dp)
                 .setContentTitle("MP3 Player")
                 .setContentText("Song is playing!");
@@ -108,7 +111,6 @@ public class MP3BoundService extends Service {
         Log.i(TAG, "service onCreate");
         Log.i(TAG, "notification created");
     }
-
 
     // cancel notification when the music player service is disconnected
     @Override
